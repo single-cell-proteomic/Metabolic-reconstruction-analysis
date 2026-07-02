@@ -246,7 +246,7 @@ target_samples <- rownames(meta)[meta$state == target_label]
 
 This step is written for raw RNA-seq counts.
 
-DE analysis is performed before filtering to the GEM gene universe. This avoids restricting the statistical model to genes already present in the metabolic model.
+DE analysis is performed before filtering to the GEM gene universe.
 
 ```r
 count_mat <- round(expr)
@@ -281,14 +281,6 @@ For raw RNA-seq counts, VST-normalized expression values are used for target-sta
 ```r
 vsd <- vst(dds, blind = FALSE)
 norm_expr <- assay(vsd)
-
-write.table(
-  norm_expr,
-  file = file.path(out_dir, "normalized_expression_all_genes_VST.tsv"),
-  sep = "\t",
-  quote = FALSE,
-  col.names = NA
-)
 ```
 
 ## 12. Filter DEG table and normalized expression matrix to the GEM gene universe
