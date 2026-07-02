@@ -1,0 +1,11 @@
+sample_id,state,condition
+Healthy_01,target,healthy
+Healthy_02,target,healthy
+Healthy_03,target,healthy
+Healthy_04,target,healthy
+Healthy_05,target,healthy
+Disease_01,source,disease
+Disease_02,source,disease
+Disease_03,source,disease
+Disease_04,source,disease
+Disease_05,source,disease
