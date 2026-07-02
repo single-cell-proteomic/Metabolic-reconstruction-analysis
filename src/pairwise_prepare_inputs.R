@@ -132,14 +132,6 @@ write.csv(
 vsd <- vst(dds, blind = FALSE)
 norm_expr <- assay(vsd)
 
-write.table(
-  norm_expr,
-  file = file.path(out_dir, "normalized_expression_all_genes_VST.tsv"),
-  sep = "\t",
-  quote = FALSE,
-  col.names = NA
-)
-
 # -----------------------------------------------------------------------------
 # Filter DEG table and normalized expression matrix to the GEM gene universe
 # -----------------------------------------------------------------------------
@@ -152,26 +144,6 @@ deg_gem_pval <- deg_gem_all %>%
   filter(!is.na(pval), pval <= pval_cutoff)
 
 norm_expr_gem <- norm_expr[rownames(norm_expr) %in% gem_genes, , drop = FALSE]
-
-write.csv(
-  deg_gem_all,
-  file.path(out_dir, "DEG_source_vs_target_GEM_genes_all.csv"),
-  row.names = FALSE
-)
-
-write.csv(
-  deg_gem_pval,
-  file.path(out_dir, paste0("DEG_source_vs_target_GEM_genes_pval_", pval_cutoff, ".csv")),
-  row.names = FALSE
-)
-
-write.table(
-  norm_expr_gem,
-  file = file.path(out_dir, "normalized_expression_GEM_genes_VST.tsv"),
-  sep = "\t",
-  quote = FALSE,
-  col.names = NA
-)
 
 # -----------------------------------------------------------------------------
 # Discretize target-state expression
@@ -187,14 +159,6 @@ target_discrete <- apply(
 
 target_discrete <- as.data.frame(target_discrete)
 rownames(target_discrete) <- rownames(target_norm)
-
-write.table(
-  target_discrete,
-  file = file.path(out_dir, "target_state_discretized_expression.tsv"),
-  sep = "\t",
-  quote = FALSE,
-  col.names = NA
-)
 
 # -----------------------------------------------------------------------------
 # Build target-state consensus reference
