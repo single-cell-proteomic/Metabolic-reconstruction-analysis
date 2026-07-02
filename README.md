@@ -360,14 +360,6 @@ target_discrete <- apply(
 
 target_discrete <- as.data.frame(target_discrete)
 rownames(target_discrete) <- rownames(target_norm)
-
-write.table(
-  target_discrete,
-  file = file.path(out_dir, "target_state_discretized_expression.tsv"),
-  sep = "\t",
-  quote = FALSE,
-  col.names = NA
-)
 ```
 
 ## 14. Build target-state consensus reference
