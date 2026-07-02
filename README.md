@@ -869,12 +869,3 @@ For each replicate, the MATLAB pipeline writes:
 | `results/MATLAB_outputs/Logs/source_vs_target_rep01_rxnFBS.mat` | Reaction-level DEG signal and active reaction count. |
 | `results/MATLAB_outputs/Logs/source_vs_target_rep01_rMTA_workspace.mat` | Replicate-level MATLAB workspace/log variables. |
 ---
-
-# Minimal run order
-
-1. Put expression, metadata, GEM gene list, and (Optional) mapping/filter files under `data/`.
-2. Run the R-side code until `results/R_outputs/target_state_consensus_reference.tsv` and `results/R_outputs/DEG_source_vs_target_GEM_genes_pval_0.05.csv` are produced.
-3. Confirm that `Gene_ID` values match the GEM model gene identifiers, after automatic transcript-suffix cleaning if relevant.
-4. Run the MATLAB-side code.
-5. Check the active differential reaction count in MATLAB logs.
-6. Tune `padj_threshold` and `fc_threshold` if the rMTA outputs are too broad or uninformative.
