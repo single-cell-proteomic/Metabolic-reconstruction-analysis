@@ -10,7 +10,7 @@
 %% User-defined parameters
 clear; clc;
 
-model_file = 'data/Recon3D.mat';
+model_file = 'data/Mouse-GEM.mat';
 target_expression_file = 'results/R_outputs/target_state_consensus_reference.tsv';
 deg_file = 'results/R_outputs/DEG_source_vs_target_all_genes.csv';
 
