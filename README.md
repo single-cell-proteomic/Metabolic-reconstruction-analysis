@@ -18,8 +18,8 @@ The default workflow assumes raw RNA-seq gene counts, but the data-format requir
 │   ├── expression_counts.tsv
 │   ├── metadata.csv
 │   ├── gem_genes.csv
-│   ├── mrna_genes.csv              # optional
-│   ├── id_mapping.csv              # optional
+│   ├── mrna_genes.csv              # (Optional)
+│   ├── id_mapping.csv              # (Optional)
 │   └── Recon3D.mat                 # or another GEM model
 ├── results/
 │   ├── R_outputs/
@@ -42,8 +42,8 @@ The R side prepares MATLAB/rMTA-ready input files from an expression matrix and 
 It performs the following tasks:
 
 1. loads the expression matrix and metadata,
-2. optionally removes non-mRNA / non-protein-coding genes,
-3. optionally converts gene identifiers to the GEM-compatible ID type,
+2. (Optional) removes non-mRNA / non-protein-coding genes,
+3. (Optional) converts gene identifiers to the GEM-compatible ID type,
 4. computes differential expression as **source versus target**,
 5. normalizes raw RNA-seq counts using VST for target-reference construction,
 6. filters exported files to the GEM gene universe,
@@ -51,7 +51,7 @@ It performs the following tasks:
 8. builds a target-state consensus expression reference,
 9. exports MATLAB/rMTA-ready files.
 
-The R code is written for raw RNA-seq counts. For microarray or already normalized data, see [Notes for non-RNA-seq datasets](#notes-for-non-rna-seq-datasets).
+The R code is written for raw RNA-seq counts. For microarray or already normalized data, see [(Optional) Notes for non-RNA-seq datasets](#optional-notes-for-non-rna-seq-datasets).
 
 ## 2. Required input files
 
@@ -59,12 +59,11 @@ The R code is written for raw RNA-seq counts. For microarray or already normaliz
 
 The expression matrix must contain genes in rows and samples in columns.
 
-```text
-Gene_ID    Sample_01    Sample_02    Sample_03    ...
-GeneA      120          95           210
-GeneB      0            4            1
-GeneC      51           43           38
-```
+| Gene_ID | Sample_01 | Sample_02 | Sample_03 |
+|---|---:|---:|---:|
+| GeneA | 120 | 95 | 210 |
+| GeneB | 0 | 4 | 1 |
+| GeneC | 51 | 43 | 38 |
 
 For the default RNA-seq workflow, values must be raw, non-normalized gene counts.
 
@@ -72,19 +71,20 @@ For the default RNA-seq workflow, values must be raw, non-normalized gene counts
 
 The metadata table must contain at least two columns.
 
-```text
-sample_id,state
-Sample_01,target
-Sample_02,source
-Sample_03,source
-```
+| sample_id | state |
+|---|---|
+| Sample_01 | target |
+| Sample_02 | source |
+| Sample_03 | source |
 
 Column meanings:
 
-- `sample_id`: sample identifier matching the expression matrix column names.
-- `state`: biological state of each sample.
-  - `source`: initial / old / patient / disease state.
-  - `target`: desired / young / healthy state.
+| Column | Meaning |
+|---|---|
+| `sample_id` | Sample identifier matching the expression matrix column names. |
+| `state` | Biological state of each sample: `source` or `target`. |
+| `source` | Initial / old / patient / disease state. |
+| `target` | Desired / young / healthy state. |
 
 Differential expression is always computed as **source state versus target state**.
 
@@ -95,33 +95,33 @@ Differential expression is always computed as **source state versus target state
 
 For example, if `source = old / patient / disease` and `target = young / healthy / desired state`, positive `logFC` values represent genes increased in the source state relative to the target state.
 
-### 2.3 Optional mRNA / protein-coding gene list
+### 2.3 (Optional) mRNA / protein-coding gene list
 
 Use this file only if the expression matrix contains ncRNAs, pseudogenes, antisense transcripts, or other features that should not be used in the GEM/rMTA analysis.
 
-```text
-Gene_ID
-GeneA
-GeneB
-GeneC
-```
+| Gene_ID |
+|---|
+| GeneA |
+| GeneB |
+| GeneC |
 
 The IDs in this file must match the current row identifiers of the expression matrix at the moment this filter is applied.
 
-### 2.4 Optional gene ID mapping table
+### 2.4 (Optional) Gene ID mapping table
 
 Use this file if the expression matrix is indexed by a different gene identifier type than the GEM model.
 
-```text
-Input_ID,Gene_ID
-ENSG00000141510,7157
-ENSG00000171862,2064
-```
+| Input_ID | Gene_ID |
+|---|---|
+| ENSG00000141510 | 7157 |
+| ENSG00000171862 | 2064 |
 
 Column meanings:
 
-- `Input_ID`: gene ID currently used in the expression matrix.
-- `Gene_ID`: gene ID required by the GEM model.
+| Column | Meaning |
+|---|---|
+| `Input_ID` | Gene ID currently used in the expression matrix. |
+| `Gene_ID` | Gene ID required by the GEM model. |
 
 The final `Gene_ID` type must match the gene IDs used by the GEM model. For example, if Recon3D is used with Entrez IDs, Ensembl-indexed RNA-seq data should be converted to Entrez IDs before exporting MATLAB inputs.
 
@@ -129,12 +129,11 @@ The final `Gene_ID` type must match the gene IDs used by the GEM model. For exam
 
 The GEM gene universe is the list of genes present in the metabolic model.
 
-```text
-Gene_ID
-7157
-2064
-...
-```
+| Gene_ID |
+|---|
+| 7157 |
+| 2064 |
+| ... |
 
 DE analysis is **not** performed only on GEM genes. DE analysis is performed on all usable expression genes, and GEM filtering is applied later to the exported DEG table and target reference files.
 
@@ -192,7 +191,7 @@ meta <- meta[colnames(expr), ]
 meta$state <- factor(meta$state, levels = c(target_label, source_label))
 ```
 
-## 6. Optional: keep only mRNA / protein-coding genes
+## 6. (Optional) Keep only mRNA / protein-coding genes
 
 Run this step if the expression matrix contains ncRNAs or other non-mRNA features that should be excluded before DE analysis and GEM mapping.
 
@@ -203,7 +202,7 @@ if (use_mrna_filter) {
 }
 ```
 
-## 7. Optional: convert gene identifiers to GEM-compatible IDs
+## 7. (Optional) Convert gene identifiers to GEM-compatible IDs
 
 Run this step if the expression matrix uses a different gene ID type than the GEM model.
 
@@ -222,7 +221,7 @@ if (use_id_conversion) {
 }
 ```
 
-## 8. Optional: aggregate duplicate gene IDs after conversion
+## 8. (Optional) Aggregate duplicate gene IDs after conversion
 
 If multiple input genes map to the same GEM-compatible `Gene_ID`, duplicate rows must be aggregated before DESeq2.
 
@@ -453,32 +452,39 @@ summary_table
 
 The most important MATLAB/rMTA input files are:
 
-```text
-results/R_outputs/DEG_source_vs_target_GEM_genes_pval_0.05.csv
-results/R_outputs/target_state_consensus_reference.tsv
-```
+| File | Purpose |
+|---|---|
+| `results/R_outputs/DEG_source_vs_target_GEM_genes_pval_0.05.csv` | GEM-filtered source-vs-target DEG table. |
+| `results/R_outputs/target_state_consensus_reference.tsv` | Target-state consensus expression reference. |
 
 The DEG file uses this format:
 
-```text
-Gene_ID,baseMean,logFC,lfcSE,stat,pval,padj
-```
+| Column | Meaning |
+|---|---|
+| `Gene_ID` | GEM-compatible gene identifier. |
+| `baseMean` | Mean normalized count from DESeq2. |
+| `logFC` | Source-vs-target log2 fold change. |
+| `lfcSE` | Standard error of log fold change. |
+| `stat` | DESeq2 test statistic. |
+| `pval` | Raw p-value. |
+| `padj` | Adjusted p-value. |
 
 The target reference file uses this format:
 
-```text
-Gene_ID    Expression
-```
+| Column | Meaning |
+|---|---|
+| `Gene_ID` | GEM-compatible gene identifier. |
+| `Expression` | Discrete target-state consensus expression value. |
 
-where `Expression` is one of:
+`Expression` values:
 
-```text
--1 = low expression in target state
- 0 = moderate / uncertain / no consensus
- 1 = high expression in target state
-```
+| Value | Meaning |
+|---:|---|
+| `-1` | Low expression in target state. |
+| `0` | Moderate / uncertain / no consensus. |
+| `1` | High expression in target state. |
 
-## Notes for non-RNA-seq datasets
+## (Optional) Notes for non-RNA-seq datasets
 
 This R workflow is written for raw RNA-seq gene count data.
 
@@ -543,23 +549,26 @@ Required software and functions:
 
 The default paths below match the R-side outputs in this README.
 
-```text
-results/R_outputs/target_state_consensus_reference.tsv
-results/R_outputs/DEG_source_vs_target_GEM_genes_pval_0.05.csv
-data/Recon3D.mat
-```
+| File | Purpose |
+|---|---|
+| `results/R_outputs/target_state_consensus_reference.tsv` | Target-state consensus expression reference. |
+| `results/R_outputs/DEG_source_vs_target_GEM_genes_pval_0.05.csv` | Source-vs-target DEG table. |
+| `data/Recon3D.mat` | GEM model used by COBRA/rMTA. |
 
 The target expression file must contain:
 
-```text
-Gene_ID    Expression
-```
+| Column | Meaning |
+|---|---|
+| `Gene_ID` | Gene identifier compatible with the cleaned model gene IDs. |
+| `Expression` | Discrete target-state value: `-1`, `0`, or `1`. |
 
 The DEG file must contain at least:
 
-```text
-Gene_ID    logFC    padj
-```
+| Column | Meaning |
+|---|---|
+| `Gene_ID` | Gene identifier compatible with the cleaned model gene IDs. |
+| `logFC` | Source-vs-target log2 fold change. |
+| `padj` | Adjusted p-value used by the MATLAB/rMTA filter. |
 
 The rMTA helper function expects a column named `pval`. In this pipeline, adjusted p-values are used conceptually and computationally. Therefore, `padj` is copied into a temporary `pval` column only for compatibility with the existing rMTA helper code.
 
@@ -617,8 +626,10 @@ Some GEMs store genes with transcript-like suffixes, for example `1234.1`, while
 
 This step automatically creates two columns:
 
-- `Gene_ID`: cleaned ID used to match R output files.
-- `Model_Gene_ID`: original ID used internally by COBRA and `model.genes`.
+| Column | Meaning |
+|---|---|
+| `Gene_ID` | Cleaned ID used to match R output files. |
+| `Model_Gene_ID` | Original ID used internally by COBRA and `model.genes`. |
 
 If the model genes do not contain transcript-like suffixes, both IDs remain identical.
 
@@ -673,9 +684,11 @@ This pipeline uses adjusted p-values. The rMTA helper function expects a column 
 
 Required internal variables for `diffexprs2rxnFBS`:
 
-- `gene`: gene IDs compatible with the cleaned model `Gene_ID`
-- `logFC`: source-vs-target log fold-change
-- `pval`: adjusted p-value alias copied from `padj`
+| Internal variable | Meaning |
+|---|---|
+| `gene` | Gene IDs compatible with the cleaned model `Gene_ID`. |
+| `logFC` | Source-vs-target log fold-change. |
+| `pval` | Adjusted p-value alias copied from `padj`. |
 
 ```matlab
 differ_genes = prepareDegTable( ...
@@ -866,13 +879,12 @@ end
 
 For each replicate, the MATLAB pipeline writes:
 
-```text
-results/MATLAB_outputs/source_vs_target_rep01_padj005_FC0_CHRR_rMTA.xlsx
-results/MATLAB_outputs/source_vs_target_rep02_padj005_FC0_CHRR_rMTA.xlsx
-...
-results/MATLAB_outputs/Logs/source_vs_target_rep01_rxnFBS.mat
-results/MATLAB_outputs/Logs/source_vs_target_rep01_rMTA_workspace.mat
-```
+| File pattern | Purpose |
+|---|---|
+| `results/MATLAB_outputs/source_vs_target_rep01_padj005_FC0_CHRR_rMTA.xlsx` | rMTA Excel output for replicate 1. |
+| `results/MATLAB_outputs/source_vs_target_rep02_padj005_FC0_CHRR_rMTA.xlsx` | rMTA Excel output for replicate 2. |
+| `results/MATLAB_outputs/Logs/source_vs_target_rep01_rxnFBS.mat` | Reaction-level DEG signal and active reaction count. |
+| `results/MATLAB_outputs/Logs/source_vs_target_rep01_rMTA_workspace.mat` | Replicate-level MATLAB workspace/log variables. |
 
 The most important QC value is:
 
@@ -886,7 +898,7 @@ If this value is too high, tune `padj_threshold`, `fc_threshold`, or the upstrea
 
 # Minimal run order
 
-1. Put expression, metadata, GEM gene list, and optional mapping/filter files under `data/`.
+1. Put expression, metadata, GEM gene list, and (Optional) mapping/filter files under `data/`.
 2. Run the R-side code until `results/R_outputs/target_state_consensus_reference.tsv` and `results/R_outputs/DEG_source_vs_target_GEM_genes_pval_0.05.csv` are produced.
 3. Confirm that `Gene_ID` values match the GEM model gene identifiers, after automatic transcript-suffix cleaning if relevant.
 4. Run the MATLAB-side code.
