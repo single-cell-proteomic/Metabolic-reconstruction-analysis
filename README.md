@@ -66,6 +66,9 @@ The expression matrix must contain genes in rows and samples in columns.
 | GeneC | 51 | 43 | 38 |
 
 For the default RNA-seq workflow, values must be raw, non-normalized gene counts.
+**Note on example data**
+
+The `data/expression_counts.tsv` file included in this repository is a synthetic RNA-seq count matrix generated only for testing and demonstration purposes. It does not represent real biological samples. Users should replace this file with their own raw RNA-seq count matrix before running a real analysis.
 
 ### 2.2 Metadata table
 
