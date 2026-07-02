@@ -692,7 +692,7 @@ Important QC checkpoint:
 - Very large DEG sets may activate too many reactions.
 - If too many reactions are active, knockout simulations may fail to produce negative `wTS` values.
 - In that case, `wTS` and `bTS` may not contribute meaningfully to final `rTS`.
-- If this happens, use stricter `padj` and/or `logFC` thresholds.
+- If this happens, stricter `padj` and/or `logFC` thresholds can be used to decrease number of active reactions.
 
 ```matlab
 for rep = 1:n_replicates
