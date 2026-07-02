@@ -868,15 +868,6 @@ For each replicate, the MATLAB pipeline writes:
 | `results/MATLAB_outputs/source_vs_target_rep02_padj005_FC0_CHRR_rMTA.xlsx` | rMTA Excel output for replicate 2. |
 | `results/MATLAB_outputs/Logs/source_vs_target_rep01_rxnFBS.mat` | Reaction-level DEG signal and active reaction count. |
 | `results/MATLAB_outputs/Logs/source_vs_target_rep01_rMTA_workspace.mat` | Replicate-level MATLAB workspace/log variables. |
-
-The most important QC value is:
-
-```matlab
-active_reaction_count = sum(rxnFBS ~= 0);
-```
-
-If this value is too high, tune `padj_threshold`, `fc_threshold`, or the upstream DEG filtering strategy.
-
 ---
 
 # Minimal run order
