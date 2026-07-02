@@ -479,7 +479,6 @@ For microarray data or already normalized expression matrices:
 - Use an appropriate differential expression method, such as limma.
 - If the expression values are already normalized and approximately continuous, pass the normalized matrix directly to the discretization and consensus steps.
 - For microarray-like expression values that are already normalized and approximately normally distributed, additional VST-like transformation is usually unnecessary.
-- If duplicate gene IDs are produced after ID conversion, use mean or median aggregation instead of summing raw counts.
 
 The key requirements remain the same regardless of data type:
 
