@@ -12,7 +12,7 @@ clear; clc;
 
 model_file = 'data/Recon3D.mat';
 target_expression_file = 'results/R_outputs/target_state_consensus_reference.tsv';
-deg_file = 'results/R_outputs/DEG_source_vs_target_GEM_genes_pval_0.05.csv';
+deg_file = 'results/R_outputs/DEG_source_vs_target_all_genes.csv';
 
 comparison_name = 'source_vs_target';
 out_dir = 'results/MATLAB_outputs';
