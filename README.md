@@ -1,15 +1,18 @@
 # Pairwise Metabolic Transformation Analysis Pipeline
 
-This repository contains a two-step pipeline for pairwise metabolic transformation analysis between a **source** state and a **target** state.
+This repository contains a three-part pipeline for pairwise metabolic transformation analysis between a **source** state and a **target** state.
 
-The pipeline is intentionally simple and handover-friendly:
+The workflow is intentionally simple and handover-friendly:
 
-1. The **R section** prepares differential expression and target-state expression-reference files.
-2. The **MATLAB section** uses those files to build a target-state tissue-specific model and run rMTA.
+1. The **R preparation script** creates differential-expression and target-state expression-reference files.
+2. The **MATLAB/rMTA script** builds a target-state tissue-specific model and runs rMTA replicates.
+3. The **R result-analysis script** merges rMTA outputs, filters stable candidate genes, runs GO-BP/KEGG enrichment, and generates plots.
 
 The default workflow assumes raw RNA-seq gene counts, but the data-format requirements and points that need adaptation for other expression platforms are described below.
 
 ## Repository layout
+
+All executable scripts are kept under `src/`. Relative paths in the scripts assume that commands are run from the repository root.
 
 ```text
 .
@@ -18,18 +21,136 @@ The default workflow assumes raw RNA-seq gene counts, but the data-format requir
 │   ├── expression_counts.tsv
 │   ├── metadata.csv
 │   ├── gem_genes.csv
-│   ├── mrna_genes.csv              # (Optional)
-│   ├── id_mapping.csv              # (Optional)
+│   ├── mrna_genes.csv              # Optional
+│   ├── id_mapping.csv              # Optional
 │   └── Recon3D.mat                 # or another GEM model
 ├── results/
 │   ├── R_outputs/
-│   └── MATLAB_outputs/
+│   ├── MATLAB_outputs/
+│   │   └── Logs/
+│   └── analysis_results/
+├── plots/
 └── src/
     ├── pairwise_prepare_inputs.R
-    └── pairwise_rMTA_general.m
+    ├── pairwise_rMTA_general.m
+    └── analyze_rMTA_results.R
 ```
 
-The `README.md` explains the workflow step by step. The `src/` files contain the same logic as directly executable scripts.
+The `README.md` explains the workflow step by step. The scripts in `src/` contain the same logic as directly executable files.
+
+## Pipeline overview
+
+| Part | Script | Main input | Main output |
+|---|---|---|---|
+| Part I | `src/pairwise_prepare_inputs.R` | Expression matrix, metadata, GEM gene list | DEG table and target-state consensus expression reference |
+| Part II | `src/pairwise_rMTA_general.m` | R outputs and GEM model | Replicate-level rMTA Excel files |
+| Part III | `src/analyze_rMTA_results.R` | rMTA replicate Excel files | Merged rMTA table, retained genes, GO-BP/KEGG tables, enrichment plots |
+
+## Dependencies
+
+### R dependencies
+
+The R preparation step requires:
+
+```r
+library(DESeq2)
+library(dplyr)
+library(tibble)
+```
+
+The R result-analysis step requires:
+
+```r
+library(readxl)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(openxlsx)
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Mm.eg.db)
+library(ggplot2)
+library(grid)
+```
+
+For a mouse workflow, the default annotation package is `org.Mm.eg.db`. For a human workflow, use `org.Hs.eg.db` and set the KEGG organism code to `hsa`.
+
+A typical R installation command is:
+
+```r
+install.packages(c(
+  "dplyr",
+  "tibble",
+  "readxl",
+  "tidyr",
+  "readr",
+  "openxlsx",
+  "ggplot2"
+))
+
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+
+BiocManager::install(c(
+  "DESeq2",
+  "clusterProfiler",
+  "AnnotationDbi",
+  "org.Mm.eg.db"
+))
+```
+
+### MATLAB / COBRA dependencies
+
+The MATLAB/rMTA step requires:
+
+- MATLAB,
+- COBRA Toolbox,
+- a compatible optimization solver such as Gurobi,
+- a GEM model readable by COBRA Toolbox,
+- rMTA helper functions available on the MATLAB path:
+  - `diffexprs2rxnFBS`,
+  - `calculateEPSILON`,
+  - `rMTA`,
+  - `rMTAsaveInExcel`.
+
+Before running the MATLAB script, initialize COBRA Toolbox and check the solver:
+
+```matlab
+initCobraToolbox(false)
+changeCobraSolver('gurobi', 'all')
+```
+
+## Running the complete pipeline
+
+Run all commands from the repository root.
+
+First, prepare the R-side rMTA input files:
+
+```bash
+Rscript src/pairwise_prepare_inputs.R
+```
+
+Second, run the MATLAB/rMTA transformation analysis:
+
+```matlab
+run('src/pairwise_rMTA_general.m')
+```
+
+Third, analyze the rMTA results and run enrichment analysis:
+
+```bash
+Rscript src/analyze_rMTA_results.R
+```
+
+The expected main output folders are:
+
+| Folder | Content |
+|---|---|
+| `results/R_outputs/` | DEG table and target-state consensus expression reference. |
+| `results/MATLAB_outputs/` | Replicate-level rMTA Excel outputs and MATLAB logs. |
+| `results/analysis_results/` | Merged rMTA tables, retained genes, GO-BP/KEGG enrichment tables. |
+| `plots/` | GO-BP and KEGG enrichment plots. |
 
 ---
 
@@ -494,9 +615,7 @@ The key requirements remain the same regardless of data type:
 
 ---
 
-# ======================================================================
 # Part II — MATLAB/rMTA transformation analysis
-# ======================================================================
 
 ## 1. Purpose
 
@@ -874,9 +993,7 @@ For each replicate, the MATLAB pipeline writes:
 | `results/MATLAB_outputs/Logs/source_vs_target_rep01_rMTA_workspace.mat` | Replicate-level MATLAB workspace/log variables. |
 ---
 
-# ======================================================================
 # Part III — rMTA result analysis
-# ======================================================================
 
 ## 1. Purpose
 
