@@ -581,7 +581,6 @@ The key requirements remain the same regardless of data type:
 1. DEG direction must be source versus target.
 2. Positive `logFC` must mean higher expression in the source state.
 3. The final `Gene_ID` type must match the GEM model.
-4. The target consensus reference must be generated only from target-state samples.
 
 
 ---
