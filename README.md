@@ -417,33 +417,8 @@ The R-side p-value filter is a practical pre-filter. The MATLAB/rMTA side still 
 ```r
 gem_genes <- as.character(read.csv(gem_gene_file, check.names = FALSE)$Gene_ID)
 
-deg_gem_all <- deg_all %>%
-  filter(Gene_ID %in% gem_genes)
-
-deg_gem_pval <- deg_gem_all %>%
-  filter(!is.na(pval), pval <= pval_cutoff)
-
 norm_expr_gem <- norm_expr[rownames(norm_expr) %in% gem_genes, ]
 
-write.csv(
-  deg_gem_all,
-  file.path(out_dir, "DEG_source_vs_target_GEM_genes_all.csv"),
-  row.names = FALSE
-)
-
-write.csv(
-  deg_gem_pval,
-  file.path(out_dir, paste0("DEG_source_vs_target_GEM_genes_pval_", pval_cutoff, ".csv")),
-  row.names = FALSE
-)
-
-write.table(
-  norm_expr_gem,
-  file = file.path(out_dir, "normalized_expression_GEM_genes_VST.tsv"),
-  sep = "\t",
-  quote = FALSE,
-  col.names = NA
-)
 ```
 
 ### DEG filtering note for rMTA
@@ -534,8 +509,6 @@ summary_table <- data.frame(
     "Target samples",
     "Genes used in DESeq2",
     "Genes in GEM universe",
-    "GEM genes with DE result",
-    "GEM genes with p-value-filtered DE result",
     "Consensus low genes",
     "Consensus moderate genes",
     "Consensus high genes"
@@ -545,8 +518,6 @@ summary_table <- data.frame(
     length(target_samples),
     nrow(expr),
     length(gem_genes),
-    nrow(deg_gem_all),
-    nrow(deg_gem_pval),
     sum(target_reference$Expression == -1),
     sum(target_reference$Expression == 0),
     sum(target_reference$Expression == 1)
